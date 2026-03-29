@@ -1,14 +1,15 @@
-import { LayoutDashboard, CreditCard } from 'lucide-react';
+import { LayoutDashboard, CreditCard, ShieldCheck } from 'lucide-react';
 
-type Tab = 'dashboard' | 'bills';
+type Tab = 'dashboard' | 'bills' | 'admin';
 
 interface Props {
   activeTab: Tab;
   onTabChange: (tab: Tab) => void;
   overdueCount: number;
+  isAdmin?: boolean;
 }
 
-export function Navigation({ activeTab, onTabChange, overdueCount }: Props) {
+export function Navigation({ activeTab, onTabChange, overdueCount, isAdmin }: Props) {
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-700/50 safe-area-pb">
       <div className="max-w-2xl mx-auto flex">
@@ -38,6 +39,18 @@ export function Navigation({ activeTab, onTabChange, overdueCount }: Props) {
           </div>
           <span className="text-xs font-medium">Contas</span>
         </button>
+
+        {isAdmin && (
+          <button
+            onClick={() => onTabChange('admin')}
+            className={`flex-1 flex flex-col items-center gap-1 py-3 transition-colors ${
+              activeTab === 'admin' ? 'text-brand-400' : 'text-slate-500 hover:text-slate-300'
+            }`}
+          >
+            <ShieldCheck size={22} />
+            <span className="text-xs font-medium">Admin</span>
+          </button>
+        )}
       </div>
     </nav>
   );

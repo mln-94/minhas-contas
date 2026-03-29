@@ -6,17 +6,30 @@ export function useAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  async function fetchProfile(u: User | null) {
+    if (!u) { setIsAdmin(false); return; }
+    const { data } = await supabase
+      .from('profiles')
+      .select('is_admin')
+      .eq('id', u.id)
+      .single();
+    setIsAdmin(data?.is_admin ?? false);
+  }
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      fetchProfile(data.session?.user ?? null);
       setLoading(false);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
+      fetchProfile(session?.user ?? null);
     });
 
     return () => listener.subscription.unsubscribe();
@@ -47,5 +60,5 @@ export function useAuth() {
     await supabase.auth.signOut();
   }
 
-  return { user, session, loading, signIn, signUp, resetPassword, signOut };
+  return { user, session, loading, isAdmin, signIn, signUp, resetPassword, signOut };
 }

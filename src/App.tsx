@@ -9,13 +9,14 @@ import { Navigation } from './components/layout/Navigation';
 import { Dashboard } from './components/dashboard/Dashboard';
 import { BillsPage } from './components/bills/BillsPage';
 import { PaymentModal } from './components/bills/PaymentModal';
+import { AdminPage } from './components/admin/AdminPage';
 import { buildBillsWithStatus, sortBills } from './lib/billUtils';
 import { isDemoMode } from './lib/supabase';
 import { DEMO_USER } from './lib/mockData';
 import type { BillWithStatus } from './types';
 import { Loader2, FlaskConical } from 'lucide-react';
 
-type Tab = 'dashboard' | 'bills';
+type Tab = 'dashboard' | 'bills' | 'admin';
 
 function DemoBanner() {
   return (
@@ -97,7 +98,7 @@ function AppDemo() {
 
 // ─── Production mode (com Supabase) ──────────────────────────────────────────
 function AppWithBackend() {
-  const { user, loading: authLoading, signIn, signUp, resetPassword, signOut } = useAuth();
+  const { user, loading: authLoading, isAdmin, signIn, signUp, resetPassword, signOut } = useAuth();
   const { darkMode, toggle: toggleTheme } = useTheme(user);
   const {
     bills, payments, loading: billsLoading,
@@ -166,9 +167,10 @@ function AppWithBackend() {
             getReceiptUrl={getReceiptSignedUrl}
           />
         )}
+        {activeTab === 'admin' && isAdmin && <AdminPage />}
       </main>
 
-      <Navigation activeTab={activeTab} onTabChange={setActiveTab} overdueCount={overdueCount} />
+      <Navigation activeTab={activeTab} onTabChange={setActiveTab} overdueCount={overdueCount} isAdmin={isAdmin} />
 
       <PaymentModal
         bill={dashboardPayBill}
