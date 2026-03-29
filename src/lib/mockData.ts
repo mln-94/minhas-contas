@@ -1,0 +1,167 @@
+import type { Bill, Payment } from '../types';
+
+export const DEMO_USER = {
+  id: 'demo-user-001',
+  email: 'demo@minhascontas.app',
+  user_metadata: { full_name: 'Usuário Demo' },
+} as unknown as import('@supabase/supabase-js').User;
+
+const today = new Date();
+const y = today.getFullYear();
+const m = String(today.getMonth() + 1).padStart(2, '0');
+const prevM = String(today.getMonth() === 0 ? 12 : today.getMonth()).padStart(2, '0');
+const prevY = today.getMonth() === 0 ? y - 1 : y;
+
+export const DEMO_BILLS: Bill[] = [
+  {
+    id: 'b1',
+    user_id: 'demo-user-001',
+    name: 'Aluguel',
+    amount: 1800,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '5',
+    category: 'moradia',
+    notes: 'Transferência para conta do proprietário',
+    color: '#8b5cf6',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b2',
+    user_id: 'demo-user-001',
+    name: 'Cartão de Crédito',
+    amount: 0,
+    variable_amount: true,
+    frequency: 'monthly',
+    due_day: '10',
+    category: 'outros',
+    notes: '',
+    color: '#ec4899',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b3',
+    user_id: 'demo-user-001',
+    name: 'Netflix',
+    amount: 39.90,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '1',
+    category: 'assinaturas',
+    notes: '',
+    color: '#22c55e',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b4',
+    user_id: 'demo-user-001',
+    name: 'Plano de Saúde',
+    amount: 650,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '20',
+    category: 'saude',
+    notes: 'Plano familiar — 3 dependentes',
+    color: '#ef4444',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b5',
+    user_id: 'demo-user-001',
+    name: 'Spotify',
+    amount: 21.90,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '15',
+    category: 'assinaturas',
+    notes: '',
+    color: '#14b8a6',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b6',
+    user_id: 'demo-user-001',
+    name: 'Internet',
+    amount: 119.90,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '8',
+    category: 'servicos',
+    notes: 'Vivo Fibra 600MB',
+    color: '#3b82f6',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b7',
+    user_id: 'demo-user-001',
+    name: 'IPVA',
+    amount: 1200,
+    variable_amount: false,
+    frequency: 'annual',
+    due_day: '03-15',
+    category: 'transporte',
+    notes: '',
+    color: '#f97316',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+  {
+    id: 'b8',
+    user_id: 'demo-user-001',
+    name: 'Academia',
+    amount: 99.90,
+    variable_amount: false,
+    frequency: 'monthly',
+    due_day: '25',
+    category: 'saude',
+    notes: '',
+    color: '#eab308',
+    created_at: new Date(y, 0, 1).toISOString(),
+  },
+];
+
+export const DEMO_PAYMENTS: Payment[] = [
+  // Netflix pago este mês
+  {
+    id: 'p1',
+    bill_id: 'b3',
+    user_id: 'demo-user-001',
+    period_key: `${y}-${m}`,
+    paid_at: new Date(y, today.getMonth(), 1, 10, 30).toISOString(),
+    amount: 39.90,
+    receipt_url: null,
+    receipt_name: null,
+  },
+  // Internet pago este mês
+  {
+    id: 'p2',
+    bill_id: 'b6',
+    user_id: 'demo-user-001',
+    period_key: `${y}-${m}`,
+    paid_at: new Date(y, today.getMonth(), 8, 14, 0).toISOString(),
+    amount: 119.90,
+    receipt_url: null,
+    receipt_name: null,
+  },
+  // Aluguel mês anterior
+  {
+    id: 'p3',
+    bill_id: 'b1',
+    user_id: 'demo-user-001',
+    period_key: `${prevY}-${prevM}`,
+    paid_at: new Date(prevY, today.getMonth() - 1 < 0 ? 11 : today.getMonth() - 1, 5, 9, 0).toISOString(),
+    amount: 1800,
+    receipt_url: null,
+    receipt_name: null,
+  },
+  // Netflix mês anterior
+  {
+    id: 'p4',
+    bill_id: 'b3',
+    user_id: 'demo-user-001',
+    period_key: `${prevY}-${prevM}`,
+    paid_at: new Date(prevY, today.getMonth() - 1 < 0 ? 11 : today.getMonth() - 1, 1, 9, 0).toISOString(),
+    amount: 39.90,
+    receipt_url: null,
+    receipt_name: null,
+  },
+];
