@@ -70,6 +70,8 @@ export function BillCard({
 
   return (
     <div className={`relative bg-slate-800 rounded-2xl border transition-all duration-200 hover:shadow-lg hover:shadow-black/20 hover:-translate-y-0.5 ${
+      menuOpen ? 'z-50' : ''
+    } ${
       bill.status === 'overdue' ? 'border-red-500/30' :
       bill.status === 'due-soon' ? 'border-yellow-500/30' :
       'border-slate-700/50 hover:border-slate-600'
