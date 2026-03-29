@@ -1,4 +1,5 @@
 import { useEffect, ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface Props {
@@ -16,17 +17,21 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }:
       if (e.key === 'Escape') onClose();
     }
     document.addEventListener('keydown', handler);
-    return () => document.removeEventListener('keydown', handler);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.removeEventListener('keydown', handler);
+      document.body.style.overflow = '';
+    };
   }, [open, onClose]);
 
   if (!open) return null;
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div
         className={`relative w-full ${maxWidth} bg-slate-800 rounded-t-3xl sm:rounded-2xl shadow-2xl border border-slate-700 max-h-[95vh] flex flex-col`}
         onClick={(e) => e.stopPropagation()}
@@ -44,6 +49,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-lg' }:
         )}
         <div className="overflow-y-auto flex-1">{children}</div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
