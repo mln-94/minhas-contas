@@ -30,17 +30,22 @@ export function useBills(user: User | null) {
     }
   }, [user]);
 
-  // Seed on first login
+  // Seed on first login — only once, tracked via localStorage
   useEffect(() => {
     if (!user) { setLoading(false); return; }
     (async () => {
-      const { count } = await supabase
-        .from('bills')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', user.id);
-      if (count === 0) {
-        const seeds = buildSeedBills(user.id);
-        await supabase.from('bills').insert(seeds);
+      const seedKey = `seeded_${user.id}`;
+      const alreadySeeded = localStorage.getItem(seedKey);
+      if (!alreadySeeded) {
+        const { count } = await supabase
+          .from('bills')
+          .select('*', { count: 'exact', head: true })
+          .eq('user_id', user.id);
+        if (count === 0) {
+          const seeds = buildSeedBills(user.id);
+          await supabase.from('bills').insert(seeds);
+        }
+        localStorage.setItem(seedKey, '1');
       }
       fetchAll();
     })();
