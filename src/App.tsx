@@ -3,7 +3,6 @@ import { useAuth } from './hooks/useAuth';
 import { useBills } from './hooks/useBills';
 import { useMockBills } from './hooks/useMockBills';
 import { useTheme } from './hooks/useTheme';
-import { useActivityLogger } from './hooks/useActivityLogger';
 import { AuthPage } from './components/auth/AuthPage';
 import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
@@ -117,12 +116,6 @@ function AppWithBackend() {
   const overdueCount = useMemo(
     () => billsWithStatus.filter((b) => b.status === 'overdue').length,
     [billsWithStatus]
-  );
-
-  // Log page visits for admin tracking (only non-admin tabs)
-  useActivityLogger(
-    user && !isAdmin ? user : null,
-    activeTab === 'bills' ? 'bills' : 'dashboard'
   );
 
   if (authLoading) {

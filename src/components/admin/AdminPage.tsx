@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import {
   Users, Receipt, CreditCard, RefreshCw, Trash2, Ban, CheckCircle2,
-  Loader2, ShieldCheck, Clock, ChevronDown, ChevronUp, LayoutDashboard,
+  Loader2, ShieldCheck, Clock, ChevronDown, ChevronUp,
 } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { ConfirmDialog } from '../shared/ConfirmDialog';
@@ -24,9 +24,8 @@ interface AppStats {
   total_payments: number;
 }
 
-interface ActivityLog {
-  page: string;
-  visited_at: string;
+interface LoginEntry {
+  accessed_at: string;
 }
 
 function fmtDate(iso: string | null) {
@@ -34,16 +33,6 @@ function fmtDate(iso: string | null) {
   try { return format(parseISO(iso), "dd/MM/yy 'às' HH:mm", { locale: ptBR }); }
   catch { return '—'; }
 }
-
-const PAGE_LABEL: Record<string, string> = {
-  dashboard: 'Visão Geral',
-  bills: 'Contas',
-};
-
-const PAGE_ICON: Record<string, React.ReactNode> = {
-  dashboard: <LayoutDashboard size={12} />,
-  bills: <CreditCard size={12} />,
-};
 
 export function AdminPage() {
   const [users, setUsers] = useState<UserStat[]>([]);
@@ -55,9 +44,9 @@ export function AdminPage() {
   const [disableTarget, setDisableTarget] = useState<UserStat | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const [activityUserId, setActivityUserId] = useState<string | null>(null);
-  const [activityLogs, setActivityLogs] = useState<Record<string, ActivityLog[]>>({});
-  const [activityLoading, setActivityLoading] = useState<string | null>(null);
+  const [historyUserId, setHistoryUserId] = useState<string | null>(null);
+  const [historyData, setHistoryData] = useState<Record<string, LoginEntry[]>>({});
+  const [historyLoading, setHistoryLoading] = useState<string | null>(null);
 
   async function load() {
     setLoading(true);
@@ -103,22 +92,22 @@ export function AdminPage() {
     load();
   }
 
-  async function toggleActivity(userId: string) {
-    if (activityUserId === userId) {
-      setActivityUserId(null);
+  async function toggleHistory(userId: string) {
+    if (historyUserId === userId) {
+      setHistoryUserId(null);
       return;
     }
-    setActivityUserId(userId);
-    if (activityLogs[userId]) return; // already loaded
+    setHistoryUserId(userId);
+    if (historyData[userId]) return;
 
-    setActivityLoading(userId);
-    const { data, error } = await supabase.rpc('get_user_activity', {
+    setHistoryLoading(userId);
+    const { data, error } = await supabase.rpc('get_user_login_history', {
       target_id: userId,
-      limit_count: 30,
+      limit_count: 20,
     });
-    setActivityLoading(null);
+    setHistoryLoading(null);
     if (!error) {
-      setActivityLogs((prev) => ({ ...prev, [userId]: data ?? [] }));
+      setHistoryData((prev) => ({ ...prev, [userId]: data ?? [] }));
     }
   }
 
@@ -177,16 +166,16 @@ export function AdminPage() {
             <div key={u.id}>
               <UserRow
                 user={u}
-                activityOpen={activityUserId === u.id}
-                activityLoading={activityLoading === u.id}
+                historyOpen={historyUserId === u.id}
+                historyLoading={historyLoading === u.id}
                 onDelete={() => setDeleteTarget(u)}
                 onToggleDisable={() => setDisableTarget(u)}
-                onToggleActivity={() => toggleActivity(u.id)}
+                onToggleHistory={() => toggleHistory(u.id)}
               />
-              {activityUserId === u.id && (
-                <ActivityPanel
-                  logs={activityLogs[u.id]}
-                  loading={activityLoading === u.id}
+              {historyUserId === u.id && (
+                <LoginHistoryPanel
+                  entries={historyData[u.id]}
+                  loading={historyLoading === u.id}
                 />
               )}
             </div>
@@ -208,7 +197,6 @@ export function AdminPage() {
         </div>
       </div>
 
-      {/* Confirm delete */}
       <ConfirmDialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
@@ -220,7 +208,6 @@ export function AdminPage() {
         confirmClass="bg-red-600 hover:bg-red-700 text-white"
       />
 
-      {/* Confirm disable/enable */}
       <ConfirmDialog
         open={!!disableTarget}
         onClose={() => setDisableTarget(null)}
@@ -256,15 +243,15 @@ function StatCard({ icon, label, value, color, bg }: {
 }
 
 function UserRow({
-  user, activityOpen, activityLoading,
-  onDelete, onToggleDisable, onToggleActivity,
+  user, historyOpen, historyLoading,
+  onDelete, onToggleDisable, onToggleHistory,
 }: {
   user: UserStat;
-  activityOpen: boolean;
-  activityLoading: boolean;
+  historyOpen: boolean;
+  historyLoading: boolean;
   onDelete: () => void;
   onToggleDisable: () => void;
-  onToggleActivity: () => void;
+  onToggleHistory: () => void;
 }) {
   return (
     <div className={`bg-slate-800 rounded-xl border px-4 py-3 transition-colors ${
@@ -284,7 +271,7 @@ function UserRow({
             Cadastro: {fmtDate(user.created_at)}
           </p>
           <p className="text-slate-500 text-xs">
-            Último login: {fmtDate(user.last_sign_in_at)}
+            Último acesso: {fmtDate(user.last_sign_in_at)}
           </p>
           <p className="text-slate-600 text-xs mt-0.5">
             {user.bills_count} conta{user.bills_count !== 1 ? 's' : ''} · {user.payments_count} pagamento{user.payments_count !== 1 ? 's' : ''}
@@ -292,17 +279,17 @@ function UserRow({
         </div>
         <div className="flex gap-1 flex-shrink-0">
           <button
-            onClick={onToggleActivity}
-            title="Ver atividade"
+            onClick={onToggleHistory}
+            title="Ver histórico de acessos"
             className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-              activityOpen
+              historyOpen
                 ? 'text-brand-400 bg-brand/10'
                 : 'text-slate-400 hover:bg-slate-700'
             }`}
           >
-            {activityLoading
+            {historyLoading
               ? <Loader2 size={15} className="animate-spin" />
-              : activityOpen
+              : historyOpen
                 ? <ChevronUp size={15} />
                 : <ChevronDown size={15} />
             }
@@ -331,21 +318,21 @@ function UserRow({
   );
 }
 
-function ActivityPanel({ logs, loading }: { logs?: ActivityLog[]; loading: boolean }) {
+function LoginHistoryPanel({ entries, loading }: { entries?: LoginEntry[]; loading: boolean }) {
   if (loading) {
     return (
       <div className="mt-1 ml-2 bg-slate-800/50 border border-slate-700/30 rounded-xl px-4 py-3 flex items-center gap-2">
         <Loader2 size={14} className="text-slate-400 animate-spin" />
-        <span className="text-slate-500 text-xs">Carregando atividade...</span>
+        <span className="text-slate-500 text-xs">Carregando histórico...</span>
       </div>
     );
   }
 
-  if (!logs || logs.length === 0) {
+  if (!entries || entries.length === 0) {
     return (
       <div className="mt-1 ml-2 bg-slate-800/50 border border-slate-700/30 rounded-xl px-4 py-3 flex items-center gap-2">
         <Clock size={14} className="text-slate-500" />
-        <span className="text-slate-500 text-xs">Nenhuma atividade registrada.</span>
+        <span className="text-slate-500 text-xs">Nenhum acesso registrado.</span>
       </div>
     );
   }
@@ -355,17 +342,13 @@ function ActivityPanel({ logs, loading }: { logs?: ActivityLog[]; loading: boole
       <div className="px-4 py-2 border-b border-slate-700/30 flex items-center gap-2">
         <Clock size={12} className="text-slate-400" />
         <span className="text-slate-400 text-xs font-semibold uppercase tracking-wider">
-          Histórico de acessos ({logs.length})
+          Histórico de acessos ({entries.length})
         </span>
       </div>
       <div className="divide-y divide-slate-700/20 max-h-48 overflow-y-auto">
-        {logs.map((log, i) => (
-          <div key={i} className="flex items-center justify-between px-4 py-2">
-            <div className="flex items-center gap-2 text-slate-300">
-              <span className="text-slate-500">{PAGE_ICON[log.page] ?? <Clock size={12} />}</span>
-              <span className="text-xs">{PAGE_LABEL[log.page] ?? log.page}</span>
-            </div>
-            <span className="text-slate-500 text-xs">{fmtDate(log.visited_at)}</span>
+        {entries.map((entry, i) => (
+          <div key={i} className="flex items-center px-4 py-2">
+            <span className="text-slate-300 text-xs">{fmtDate(entry.accessed_at)}</span>
           </div>
         ))}
       </div>
