@@ -106,7 +106,7 @@ export function AuthPage({ onSignIn, onSignUp, onResetPassword }: Props) {
             {/* Glow ring */}
             <div className="absolute inset-0 rounded-2xl ring-1 ring-brand/30 pointer-events-none" />
           </div>
-          <h1 className="text-3xl font-black text-slate-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-100 tracking-tight">
             Minhas <span className="text-brand">Contas</span>
           </h1>
           <p className="text-slate-500 text-sm mt-1.5 flex items-center justify-center gap-1.5">
@@ -116,7 +116,7 @@ export function AuthPage({ onSignIn, onSignUp, onResetPassword }: Props) {
         </div>
 
         {/* Card */}
-        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-6 shadow-2xl shadow-black/50">
+        <div className="bg-slate-900 rounded-2xl border border-slate-800 p-4 sm:p-6 shadow-2xl shadow-black/50">
           {view === 'reset' && (
             <button
               onClick={() => switchView('login')}

@@ -134,7 +134,7 @@ export function PaymentModal({ bill, open, onClose, onPay }: Props) {
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={handleDrop}
-              className="border-2 border-dashed border-slate-600 rounded-xl p-6 text-center cursor-pointer hover:border-brand hover:bg-brand-400/5 transition-all"
+              className="border-2 border-dashed border-slate-600 rounded-xl p-4 sm:p-6 text-center cursor-pointer hover:border-brand hover:bg-brand-400/5 transition-all"
             >
               <Upload size={22} className="text-slate-500 mx-auto mb-2" />
               <p className="text-slate-400 text-sm">Clique ou arraste o arquivo</p>

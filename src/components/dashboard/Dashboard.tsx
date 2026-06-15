@@ -135,16 +135,16 @@ export function Dashboard({ bills, payments, onPayBill, onGoToBills }: Props) {
               .map((bill) => (
                 <div
                   key={bill.id}
-                  className="bg-slate-800 rounded-xl border border-slate-700/50 px-4 py-3 flex items-center justify-between hover:border-slate-600 transition-colors"
+                  className="bg-slate-800 rounded-xl border border-slate-700/50 px-4 py-3 flex items-center justify-between gap-2 hover:border-slate-600 transition-colors"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: bill.color }} />
-                    <div>
-                      <p className="text-slate-100 text-sm font-medium">{bill.name}</p>
+                    <div className="min-w-0">
+                      <p className="text-slate-100 text-sm font-medium truncate">{bill.name}</p>
                       <p className="text-yellow-400 text-xs">{formatUrgencyLabel(bill.status, bill.daysUntilDue)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <span className="text-slate-300 text-sm font-medium">
                       {bill.variable_amount ? '—' : formatCurrency(bill.amount)}
                     </span>

@@ -148,10 +148,10 @@ export function AdminPage() {
 
       {/* Stats */}
       {stats && (
-        <div className="grid grid-cols-3 gap-3">
-          <StatCard icon={<Users size={18} />} label="Usuários" value={stats.total_users} color="text-brand-400" bg="bg-brand/10" />
-          <StatCard icon={<CreditCard size={18} />} label="Contas" value={stats.total_bills} color="text-blue-400" bg="bg-blue-500/10" />
-          <StatCard icon={<Receipt size={18} />} label="Pagamentos" value={stats.total_payments} color="text-green-400" bg="bg-green-500/10" />
+        <div className="grid grid-cols-3 gap-2">
+          <StatCard icon={<Users size={16} />} label="Usuários" value={stats.total_users} color="text-brand-400" bg="bg-brand/10" />
+          <StatCard icon={<CreditCard size={16} />} label="Contas" value={stats.total_bills} color="text-blue-400" bg="bg-blue-500/10" />
+          <StatCard icon={<Receipt size={16} />} label="Pagamentos" value={stats.total_payments} color="text-green-400" bg="bg-green-500/10" />
         </div>
       )}
 
@@ -234,10 +234,10 @@ function StatCard({ icon, label, value, color, bg }: {
   icon: React.ReactNode; label: string; value: number; color: string; bg: string;
 }) {
   return (
-    <div className="bg-slate-800 rounded-2xl p-4 border border-slate-700/50">
-      <div className={`w-8 h-8 rounded-lg ${bg} flex items-center justify-center mb-2 ${color}`}>{icon}</div>
-      <p className={`text-2xl font-bold ${color} leading-tight`}>{value}</p>
-      <p className="text-slate-400 text-xs mt-0.5">{label}</p>
+    <div className="bg-slate-800 rounded-2xl p-3 border border-slate-700/50">
+      <div className={`w-7 h-7 rounded-lg ${bg} flex items-center justify-center mb-2 ${color}`}>{icon}</div>
+      <p className={`text-xl font-bold ${color} leading-tight`}>{value}</p>
+      <p className="text-slate-400 text-xs mt-0.5 leading-tight">{label}</p>
     </div>
   );
 }
@@ -281,7 +281,7 @@ function UserRow({
           <button
             onClick={onToggleHistory}
             title="Ver histórico de acessos"
-            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+            className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${
               historyOpen
                 ? 'text-brand-400 bg-brand/10'
                 : 'text-slate-400 hover:bg-slate-700'
@@ -297,7 +297,7 @@ function UserRow({
           <button
             onClick={onToggleDisable}
             title={user.is_disabled ? 'Reativar' : 'Desativar'}
-            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+            className={`w-9 h-9 flex items-center justify-center rounded-lg transition-colors ${
               user.is_disabled
                 ? 'text-green-400 hover:bg-green-400/10'
                 : 'text-amber-400 hover:bg-amber-400/10'
@@ -308,7 +308,7 @@ function UserRow({
           <button
             onClick={onDelete}
             title="Excluir"
-            className="w-8 h-8 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-400/10 transition-colors"
+            className="w-9 h-9 flex items-center justify-center rounded-lg text-red-400 hover:bg-red-400/10 transition-colors"
           >
             <Trash2 size={16} />
           </button>
@@ -358,9 +358,9 @@ function LoginHistoryPanel({ entries, loading }: { entries?: LoginEntry[]; loadi
 
 function InfoRow({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
-    <div className="flex items-center justify-between px-4 py-3 gap-3">
-      <span className="text-slate-400 text-sm flex-shrink-0">{label}</span>
-      <span className={`text-slate-200 text-sm text-right truncate ${mono ? 'font-mono text-xs' : ''}`}>{value}</span>
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between px-4 py-3 gap-0.5 sm:gap-3">
+      <span className="text-slate-400 text-xs sm:text-sm flex-shrink-0">{label}</span>
+      <span className={`text-slate-200 sm:text-right truncate ${mono ? 'font-mono text-xs' : 'text-sm'}`}>{value}</span>
     </div>
   );
 }
