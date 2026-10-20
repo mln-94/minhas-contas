@@ -44,7 +44,8 @@ CREATE POLICY "payments bill must be own (update)" ON minhas_contas.payments
 
 -- ─── Perfil automático no cadastro ───────────────────────────
 -- O Auth é compartilhado pelos apps do projeto: só cria perfil para cadastros do
--- Minhas Contas (sem marcação de app = cadastros antigos/do próprio Minhas Contas).
+-- Minhas Contas. Os outros apps marcam seus usuários em app_metadata.app (que o usuário
+-- não consegue alterar); sem marcação = cadastro do Minhas Contas.
 CREATE OR REPLACE FUNCTION minhas_contas.handle_new_user()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -52,7 +53,7 @@ SECURITY DEFINER
 SET search_path = minhas_contas, public
 AS $$
 BEGIN
-  IF coalesce(NEW.raw_user_meta_data->>'app', 'minhas_contas') <> 'minhas_contas' THEN
+  IF coalesce(NEW.raw_app_meta_data->>'app', 'minhas_contas') <> 'minhas_contas' THEN
     RETURN NEW;
   END IF;
   INSERT INTO minhas_contas.profiles (id, is_admin)
@@ -193,6 +194,7 @@ $$;
 -- os usuários do Auth deste projeto são do Minhas Contas (Auge Club usa login próprio).
 INSERT INTO minhas_contas.profiles (id, is_admin)
 SELECT u.id, false FROM auth.users u
+WHERE coalesce(u.raw_app_meta_data->>'app', 'minhas_contas') = 'minhas_contas'
 ON CONFLICT (id) DO NOTHING;
 
 REVOKE EXECUTE ON ALL FUNCTIONS IN SCHEMA minhas_contas FROM PUBLIC, anon;
